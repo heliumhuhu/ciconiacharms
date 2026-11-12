@@ -1,0 +1,14 @@
+from playwright.sync_api import sync_playwright
+with sync_playwright() as p:
+ b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox','--enable-unsafe-swiftshader']);page=b.new_page(viewport={'width':1440,'height':900});errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
+ page.goto('http://localhost:3000');page.wait_for_function('curioState().boxes===24')
+ initial=page.evaluate('curioState()');page.click('#preview-image');page.keyboard.press('Escape');page.wait_for_function('!curioState().focus',timeout=15000);assert page.evaluate('curioState().angle')==initial['angle']
+ center=next(c for c in initial['centers'] if c['id']==initial['front']);page.mouse.click(center['x'],center['y']);page.wait_for_function('curioState().focus');assert page.evaluate('curioState().focus===curioState().lastPressedProduct');page.keyboard.press('Escape');page.wait_for_function('!curioState().focus',timeout=15000)
+ # Keyboard suggestions choose exact product; resizing cancels a live gesture.
+ page.fill('#search','description14');page.keyboard.press('ArrowDown');page.keyboard.press('Enter');page.wait_for_function('curioState().view?.phase==="ready"',timeout=15000);assert page.evaluate('curioState().focus')=='product-14'
+ v=page.evaluate('curioState().view.center');page.mouse.move(v['x']+10,v['y']+10);page.mouse.down();page.mouse.move(v['x']+35,v['y']+20,steps=4);page.mouse.up();page.wait_for_function('curioState().view.phase==="ready"',timeout=15000);assert page.evaluate('curioState().total')==0
+ v=page.evaluate('curioState().view.center');page.mouse.move(v['x'],v['y']);page.mouse.down();page.mouse.move(v['x']+25,v['y']+25);page.set_viewport_size({'width':390,'height':844});page.mouse.up();page.wait_for_function('curioState().view.phase==="ready"',timeout=15000);assert page.evaluate('curioState().total')==0
+ page.locator('#scene').scroll_into_view_if_needed();v=page.evaluate('curioState().view.center');r=page.locator('#save-target').bounding_box();page.mouse.move(v['x'],v['y']);page.mouse.down();page.mouse.move(r['x']+r['width']/2,r['y']+20,steps=10);page.mouse.up();assert page.evaluate('curioState().total')==1
+ page.keyboard.press('Escape');page.wait_for_function('!curioState().focus',timeout=15000);assert page.evaluate('curioState().total')==1
+ page.click('#my-box');page.get_by_role('button',name='Increase [product14]',exact=True).click();assert page.evaluate('curioState().total')==2;page.get_by_role('button',name='Decrease [product14]',exact=True).click();assert page.evaluate('curioState().total')==1;page.get_by_role('button',name='Remove [product14]',exact=True).click();assert page.evaluate('curioState().total')==0
+ assert not errors,errors;print('PASS reverse transition, exact keyboard search, invalid drop, resize cancellation, exit during return, My box management',flush=True);b.close()

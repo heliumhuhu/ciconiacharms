@@ -1,0 +1,4 @@
+curio/node_modules/
+curio/dist/
+**/__pycache__/
+*.log
