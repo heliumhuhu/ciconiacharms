@@ -3,49 +3,18 @@ import * as THREE from '/vendor/three.module.js';
 export function createProductView(c){
  const {sceneHost:host,scene,camera,carton,group,render,onSave,onBusy}=c;
  const parent=carton.parent,home=carton.position.clone(),homeQ=carton.quaternion.clone(),savedAngle=c.angle();
- // Full-resolution, premultiplied separable Gaussian. The mask uses the
- // actual scene depth: infrastructure and selected geometry never receive blur.
- const layerMasks=new Map();
- scene.traverse(o=>{layerMasks.set(o,o.layers.mask)});
- for(const other of c.others)other.traverse(o=>o.layers.set(2));
+ // One sharp scene. Layers only extend the actual dragged carton over the card.
+ const layerMasks=new Map();scene.traverse(o=>layerMasks.set(o,o.layers.mask));
  const lights=[];scene.traverse(o=>{if(o.isLight){lights.push([o,o.layers.mask]);o.layers.enableAll()}});
- const baseBuffer=new THREE.WebGLRenderTarget(1,1),buffer=new THREE.WebGLRenderTarget(1,1),maskBuffer=new THREE.WebGLRenderTarget(1,1),ping=new THREE.WebGLRenderTarget(1,1);
- const composite=new THREE.Scene(),screenCamera=new THREE.OrthographicCamera(-1,1,1,-1,0,1);
- const black=new THREE.MeshBasicMaterial({color:0x000000}),white=new THREE.MeshBasicMaterial({color:0xffffff});
- const blur=new THREE.ShaderMaterial({depthTest:false,depthWrite:false,uniforms:{image:{value:buffer.texture},maskImage:{value:maskBuffer.texture},baseImage:{value:baseBuffer.texture},originalImage:{value:buffer.texture},stepSize:{value:new THREE.Vector2()},finalPass:{value:false}},vertexShader:'varying vec2 uv0;void main(){uv0=uv;gl_Position=vec4(position.xy,0.,1.);}',fragmentShader:`
- uniform sampler2D image;uniform sampler2D maskImage;uniform sampler2D baseImage;uniform sampler2D originalImage;uniform vec2 stepSize;uniform bool finalPass;varying vec2 uv0;
- void main(){vec4 sum=vec4(0.);float weights=0.;
- for(int i=-8;i<=8;i++){vec2 uv=uv0+float(i)*stepSize;float w=exp(-float(i*i)/18.);vec4 sampleColor=texture2D(image,uv);
- if(!finalPass){float coverage=texture2D(maskImage,uv).r;sampleColor=vec4(sampleColor.rgb*coverage,coverage);}
- sum+=sampleColor*w;weights+=w;}
- gl_FragColor=sum/weights;
- if(finalPass){vec4 base=texture2D(baseImage,uv0);gl_FragColor=vec4(gl_FragColor.rgb+base.rgb*(1.-gl_FragColor.a),gl_FragColor.a+base.a*(1.-gl_FragColor.a));
- vec4 mask=texture2D(maskImage,uv0);if(mask.a>.5&&mask.r<.5)gl_FragColor=texture2D(originalImage,uv0);
- // Gaussian coverage is premultiplied in linear light. Unpremultiply
- // before tone/color conversion, then composite in display space; encoding
- // premultiplied RGB directly produces bright fringes on light cartons.
- float coverage=gl_FragColor.a;if(coverage>.00001)gl_FragColor.rgb/=coverage;
- #include <tonemapping_fragment>
- #include <colorspace_fragment>
- gl_FragColor=vec4(gl_FragColor.rgb*coverage+vec3(0.980392,0.980392,0.972549)*(1.-coverage),1.);
- }}`});
- const quad=new THREE.Mesh(new THREE.PlaneGeometry(2,2),blur);composite.add(quad);
  function renderScene(renderer){
   const w=host.clientWidth,h=host.clientHeight,showroom=host.closest('.showroom'),fullW=showroom.clientWidth,fullH=showroom.clientHeight;
-  camera.setViewOffset(w,h,0,0,fullW,fullH);const currentSize=renderer.getSize(new THREE.Vector2());if(currentSize.x!==fullW||currentSize.y!==fullH)renderer.setSize(fullW,fullH,false);renderer.domElement.style.width=fullW+'px';renderer.domElement.style.height=fullH+'px';
-  const size=renderer.getDrawingBufferSize(new THREE.Vector2());for(const target of [baseBuffer,buffer,maskBuffer,ping])if(target.width!==size.x||target.height!==size.y)target.setSize(size.x,size.y);
-  const mask=camera.layers.mask,shadow=renderer.shadowMap.enabled,updateShadows=renderer.shadowMap.autoUpdate;camera.layers.enableAll();
-  renderer.setRenderTarget(buffer);renderer.render(scene,camera);renderer.shadowMap.autoUpdate=false;camera.layers.set(0);camera.layers.enable(1);renderer.setRenderTarget(baseBuffer);renderer.render(scene,camera);camera.layers.enableAll();
-  renderer.shadowMap.enabled=false;scene.overrideMaterial=black;renderer.setRenderTarget(maskBuffer);renderer.render(scene,camera);
-  renderer.autoClear=false;scene.overrideMaterial=white;camera.layers.set(2);renderer.render(scene,camera);renderer.autoClear=true;scene.overrideMaterial=null;renderer.shadowMap.enabled=shadow;
-  const radius=renderer.getPixelRatio()*ease(progress)*.8;
-  blur.uniforms.image.value=buffer.texture;blur.uniforms.stepSize.value.set(radius/size.x,0);blur.uniforms.finalPass.value=false;renderer.setRenderTarget(ping);renderer.render(composite,screenCamera);
-  blur.uniforms.image.value=ping.texture;blur.uniforms.stepSize.value.set(0,radius/size.y);blur.uniforms.finalPass.value=true;renderer.setRenderTarget(null);renderer.clear();
-  renderer.setScissorTest(true);renderer.setScissor(0,fullH-h,w,h);renderer.render(composite,screenCamera);renderer.setScissorTest(false);
-  // The same detached carton can cross the information card. Draw with depth
-  // against the complete scene, but extend the canvas beyond its usual clip.
+  camera.setViewOffset(w,h,0,0,fullW,fullH);
+  const size=renderer.getSize(new THREE.Vector2());if(size.x!==fullW||size.y!==fullH)renderer.setSize(fullW,fullH,false);
+  renderer.domElement.style.width=fullW+'px';renderer.domElement.style.height=fullH+'px';
+  const mask=camera.layers.mask;camera.layers.enableAll();renderer.clear();
+  renderer.setScissorTest(true);renderer.setScissor(0,fullH-h,w,h);renderer.render(scene,camera);renderer.setScissorTest(false);
   if(drag||returning||phase==='disappearing'){renderer.autoClear=false;renderer.clearDepth();camera.layers.set(1);renderer.render(scene,camera);renderer.autoClear=true;}
-  camera.layers.mask=mask;renderer.shadowMap.autoUpdate=updateShadows;
+  camera.layers.mask=mask;
  }
  carton.traverse(o=>o.layers.set(1));group.children.filter(o=>o!==carton).forEach(o=>o.traverse(n=>n.layers.set(1)));
  const target=document.querySelector('#save-target'),label=document.querySelector('#target-instruction');
@@ -84,7 +53,7 @@ export function createProductView(c){
  function release(e,cancel=false){if(!drag||e.pointerId!==drag.id)return;const valid=!cancel&&drag.moved&&over(e);drag=null;if(host.hasPointerCapture(e.pointerId))host.releasePointerCapture(e.pointerId);if(valid&&onSave()){saveAnimation={t:0};host.classList.remove('dragging','over-target');host.classList.add('returning');label.textContent='Drag here to add to My box';setPhase('disappearing');request()}else reset()}
  const up=e=>release(e),cancel=e=>release(e,true);
  host.addEventListener('pointerdown',down);host.addEventListener('pointermove',move);host.addEventListener('pointerup',up);host.addEventListener('pointercancel',cancel);host.addEventListener('lostpointercapture',cancel);
- function cleanup(){for(const [o,mask] of layerMasks)o.layers.mask=mask;for(const [o,mask] of lights)o.layers.mask=mask;baseBuffer.dispose();buffer.dispose();maskBuffer.dispose();ping.dispose();black.dispose();white.dispose();blur.dispose();quad.geometry.dispose();carton.quaternion.copy(homeQ);carton.scale.copy(homeScale);carton.visible=true;cancelAnimationFrame(frame);host.removeEventListener('pointerdown',down);host.removeEventListener('pointermove',move);host.removeEventListener('pointerup',up);host.removeEventListener('pointercancel',cancel);host.removeEventListener('lostpointercapture',cancel);scene.remove(anchor);host.classList.remove('dragging','returning','over-target');delete host.dataset.phase;c.cameraLayout(false);c.renderer.setSize(host.clientWidth,host.clientHeight);}
+ function cleanup(){for(const [o,mask] of layerMasks)o.layers.mask=mask;for(const [o,mask] of lights)o.layers.mask=mask;carton.quaternion.copy(homeQ);carton.scale.copy(homeScale);carton.visible=true;cancelAnimationFrame(frame);host.removeEventListener('pointerdown',down);host.removeEventListener('pointermove',move);host.removeEventListener('pointerup',up);host.removeEventListener('pointercancel',cancel);host.removeEventListener('lostpointercapture',cancel);scene.remove(anchor);host.classList.remove('dragging','returning','over-target');delete host.dataset.phase;c.cameraLayout(false);c.renderer.setSize(host.clientWidth,host.clientHeight);}
  setPhase('zooming');request();
- return {renderScene,leave(callback){if(leaving)return;leaving=true;last=performance.now();done=callback;if(drag)cancel({pointerId:drag.id});if(!saveAnimation)setPhase('leaving');request()},resize(){c.cameraLayout(false);startCamera.copy(camera.position);c.cameraLayout(true);focusCamera.copy(camera.position);camera.position.lerpVectors(startCamera,focusCamera,ease(progress));if(drag)cancel({pointerId:drag.id});render()},diagnostics(){scene.updateMatrixWorld(true);const bounds=new THREE.Box3().setFromObject(carton),r=c.renderer.domElement.getBoundingClientRect(),points=[];for(const x of [bounds.min.x,bounds.max.x])for(const y of [bounds.min.y,bounds.max.y])for(const z of [bounds.min.z,bounds.max.z]){const v=new THREE.Vector3(x,y,z).project(camera);points.push({x:r.left+(v.x+1)*r.width/2,y:r.top+(1-v.y)*r.height/2})}const v=bounds.getCenter(new THREE.Vector3()).project(camera);return {phase,center:{x:r.left+(v.x+1)*r.width/2,y:r.top+(1-v.y)*r.height/2},bounds:points,anchorError:drag?carton.localToWorld(drag.local.clone()).distanceTo(anchor.position):0,dragging:!!drag,returning:!!returning,progress,scale:carton.scale.x,position:carton.getWorldPosition(new THREE.Vector3()).toArray(),blurredGroups:c.others.length,sharpHook:group.children.filter(o=>o!==carton).every(o=>o.layers.mask===2),visible:carton.visible,blurResolution:[buffer.width,buffer.height],cartonId:carton.uuid,attached:carton.parent===parent}}};
+ return {renderScene,leave(callback){if(leaving)return;leaving=true;last=performance.now();done=callback;if(drag)cancel({pointerId:drag.id});if(!saveAnimation)setPhase('leaving');request()},resize(){c.cameraLayout(false);startCamera.copy(camera.position);c.cameraLayout(true);focusCamera.copy(camera.position);camera.position.lerpVectors(startCamera,focusCamera,ease(progress));if(drag)cancel({pointerId:drag.id});render()},diagnostics(){scene.updateMatrixWorld(true);const bounds=new THREE.Box3().setFromObject(carton),r=c.renderer.domElement.getBoundingClientRect(),points=[];for(const x of [bounds.min.x,bounds.max.x])for(const y of [bounds.min.y,bounds.max.y])for(const z of [bounds.min.z,bounds.max.z]){const v=new THREE.Vector3(x,y,z).project(camera);points.push({x:r.left+(v.x+1)*r.width/2,y:r.top+(1-v.y)*r.height/2})}const v=bounds.getCenter(new THREE.Vector3()).project(camera);return {phase,center:{x:r.left+(v.x+1)*r.width/2,y:r.top+(1-v.y)*r.height/2},bounds:points,anchorError:drag?carton.localToWorld(drag.local.clone()).distanceTo(anchor.position):0,dragging:!!drag,returning:!!returning,progress,scale:carton.scale.x,position:carton.getWorldPosition(new THREE.Vector3()).toArray(),blurredGroups:0,sharpHook:group.children.filter(o=>o!==carton).every(o=>o.layers.mask===2),visible:carton.visible,cartonId:carton.uuid,attached:carton.parent===parent}}};
 }

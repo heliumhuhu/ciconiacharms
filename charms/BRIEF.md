@@ -1,3 +1,9 @@
+# Ciconia Charms 1.6.2 update
+
+The latest request supersedes the blur and camera requirements below: all blur/compositing is removed, browsing camera distance is 7.2 (previously 8.6), focus distance is 3.5 (previously 3.9), with responsive clearance limits retained. The product-list disclosure is above the rack, immediately discoverable. Saving and recovery mechanics are retained.
+
+## Historical 1.6.1 record (superseded where noted above)
+
 # Ciconia Charms — 1.6.1
 
 The owner's cumulative brief and naming correction supersede all earlier briefs. The current editable source directory is `charms/`. Preserve all previous release files and the supplied main logo unchanged. Retain the 24 stable products with linked numbered placeholders and null unknown prices. No checkout, payment, delivery, orders, reservations, authentication, dashboard or backend.

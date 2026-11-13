@@ -26,7 +26,7 @@ with sync_playwright() as p:
     if(s.view.phase===__escapePhase){__escapePhase=null;document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));}
     if(s.view.phase!=='ready')requestAnimationFrame(sample);
    }requestAnimationFrame(sample)}''',escape_phase)
- open_focus();home=page.evaluate('charmsState().view');assert home['blurredGroups']==23 and home['sharpHook']
+ open_focus();home=page.evaluate('charmsState().view');assert home['blurredGroups']==0 and home['sharpHook']
  r=page.locator('#scene').bounding_box();back=page.locator('#back').bounding_box();assert back['y']+back['height']<=r['y']
  drag();watch();page.mouse.up();assert page.evaluate('charmsState().total')==1
  page.wait_for_function('charmsState().view.phase==="ready"',timeout=30000)
@@ -56,5 +56,5 @@ with sync_playwright() as p:
   assert v['cartonId']==home['cartonId'];page.keyboard.press('Escape');page.wait_for_function('!charmsState().focus',timeout=30000)
   print('PASS interruption',phase,flush=True)
  assert not errors,errors
- print('PASS zero-scale relocation, frame sequence, one object, precise pivot, exact quantities, Undo, sharp hook and 23 blur groups',flush=True)
+ print('PASS zero-scale relocation, frame sequence, one object, precise pivot, exact quantities, Undo, sharp hook and no blur groups',flush=True)
  b.close()

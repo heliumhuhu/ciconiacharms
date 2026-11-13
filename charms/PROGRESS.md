@@ -1,3 +1,9 @@
+# Ciconia Charms 1.6.2 update
+
+The latest request supersedes the blur and camera requirements below: all blur/compositing is removed, browsing camera distance is 7.2 (previously 8.6), focus distance is 3.5 (previously 3.9), with responsive clearance limits retained. The product-list disclosure is above the rack, immediately discoverable. Saving and recovery mechanics are retained.
+
+## Historical 1.6.1 record (superseded where noted above)
+
 # Progress — Ciconia Charms 1.6.1
 
 ## Recovery and scope

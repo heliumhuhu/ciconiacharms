@@ -1,10 +1,16 @@
+# Ciconia Charms 1.6.2 update
+
+The latest request supersedes the blur and camera requirements below: all blur/compositing is removed, browsing camera distance is 7.2 (previously 8.6), focus distance is 3.5 (previously 3.9), with responsive clearance limits retained. The product-list disclosure is above the rack, immediately discoverable. Saving and recovery mechanics are retained.
+
+## Historical 1.6.1 record (superseded where noted above)
+
 # Ciconia Charms 1.6.1
 
 Physical jewellery and toy shop catalogue with 24 perspective cartons.
 Browse here · Buy in store. My box — saved favourites.
 Saved for your visit. Items are not reserved.
 
-Open `CICONIA-CHARMS-v1.6.1.html` in a modern browser. Scripts, fonts and required assets are embedded; no installation, server or network is required. Browser policy can restrict local-file opening or storage.
+Open `CICONIA-CHARMS-v1.6.2.html` in a modern browser. Scripts, fonts and required assets are embedded; no installation, server or network is required. Browser policy can restrict local-file opening or storage.
 
 ## Development
 
@@ -21,7 +27,7 @@ Development serves port 3000. Production: `npm run build`, then `npm start`. `PO
 ## Interaction and architecture
 
 - `public/rack.js`: perspective geometry, actual snap positions, opposite category sectors, hook openings, swing and browsing input. A centred camera fits the full focal carton; a separate nearer focus pose provides the approach.
-- `public/product-view.js`: one actual carton, existing scene/camera/renderer, exact grabbed-point pivot, pointer capture and safe cancellation. Four full-resolution render targets implement a separable 17-tap-per-axis Gaussian using premultiplied coverage and depth-tested masks. Sharp infrastructure and selected geometry retain original occlusion. No cloned product or second product scene exists; the compositor is a screen quad only.
+- `public/product-view.js`: one actual carton, existing scene/camera/renderer, exact grabbed-point pivot, pointer capture and safe cancellation. The existing scene renders directly with no blur, postprocessing buffers or compositor. All geometry retains natural depth and occlusion. No cloned product or second product scene exists; only the same dragged carton extends above the information card.
 - Focus: zooming → ready → dragging → disappearing → reappearing → ready. Invalid/cancelled gestures instead use returning → settling → ready. Leaving reverses camera progress and waits for safe carton recovery. A valid release adds exactly one before animation callbacks. Successful relocation occurs only at zero scale while invisible; no visible trip back occurs. The same object UUID is retained.
 - `public/boutique.js`: one transforming information card, one drag target, secondary quantity/button, saved counts, confirmation, latest-action Undo, list/search and grouped My box management. Both saving methods keep focus open.
 - `public/bag.js`: `ciconia-charms-quantities` storage with read-only migration from earlier releases. Current saved data takes precedence, including an intentionally empty box. Malformed or unavailable storage remains safe.

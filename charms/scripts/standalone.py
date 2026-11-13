@@ -23,4 +23,4 @@ entry=module(root/'boutique.js')
 loader='const sources='+json.dumps(modules)+';const urls={};for(const [key,source] of Object.entries(sources)){const text=source.replace(/__MODULE_(.*?)__/g,(_,name)=>urls[name]);urls[key]=URL.createObjectURL(new Blob([text],{type:"text/javascript"}));}await import(urls['+json.dumps(entry)+']);'
 html=(root/'index.html').read_text().replace('<link rel="stylesheet" href="/boutique.css">','<style>'+(root/'boutique.css').read_text()+'</style>').replace('<script type="module" src="/boutique.js"></script>','').replace('href="/"','href="#collection"')
 html=assets(html).replace('</body>','<script type="module">'+loader.replace('</script','<\\/script')+'</script></body>')
-out=root.parent.parent/'CICONIA-CHARMS-v1.6.1.html';out.write_text(html);print(out,out.stat().st_size)
+out=root.parent.parent/'CICONIA-CHARMS-v1.6.2.html';out.write_text(html);print(out,out.stat().st_size)
