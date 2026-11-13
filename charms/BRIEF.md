@@ -1,0 +1,27 @@
+# Ciconia Charms — 1.6.1
+
+The owner's cumulative brief and naming correction supersede all earlier briefs. The current editable source directory is `charms/`. Preserve all previous release files and the supplied main logo unchanged. Retain the 24 stable products with linked numbered placeholders and null unknown prices. No checkout, payment, delivery, orders, reservations, authentication, dashboard or backend.
+
+Retain “Browse here · Buy in store”, “My box — saved favourites” and “Saved for your visit. Items are not reserved.” Use My box consistently.
+
+## Superseded requirements
+
+- Replace the large intentional desktop left crop with a smaller perspective rack centred inside its left panel.
+- The single drag target belongs inside the SAME information card as the description; a separate target is obsolete.
+- A successful save disappears at the target and reappears on the original hook. A visible successful fly-back is obsolete. Invalid/cancelled drops may return continuously.
+
+## Experience
+
+Browsing shows the perspective rack and a compact picture/name/price card only. Carton, picture, search and list selection all enter the same integrated focus controller. Approach the actual existing carton with the existing camera, pause rotation, transform the existing card, and reveal its description and one saving area. No detached product modal, duplicate carton, separate product scene or quick-add interfaces.
+
+Keep complete focal-carton bounds, including tag and bottom edge, inside the canvas at 390, 768 and 1440px, for both category shapes and permitted swing. Peripheral structure may crop. Keep Back in a reserved row above the canvas. Mobile card goes below the rack. Browsing camera stays fixed during normal rotation.
+
+Blur only other cartons and their hooks. Keep infrastructure, selected hook and selected carton sharp. Use full-resolution premultiplied Gaussian rendering and actual scene-depth masking; blend with focus progress. Keep the dragged actual carton above the saving card.
+
+The exact grabbed point follows the pointer and is the damped swing pivot. Leave the hook on the rail and no stationary duplicate on the rack. A valid release adds one synchronously, then disappears, relocates only at zero scale/invisibility, and reappears on its original attachment. Block additional dragging/button saves until ready. Invalid/cancelled gestures add nothing. Back/Escape can reverse zoom and safely resolve every gesture/animation while preserving completed saves and the original browsing angle/camera.
+
+The target says “Drag here to add to My box” or “Release to add to My box” over its real bounds. Drag is primary. A small secondary button adds its adjacent quantity (1–99), independently of one-unit dragging. Show saved quantity, confirmation, Undo and aggregate header quantity. Undo removes only the actual latest addition, preserving older units. Maintain grouped editing, unavailable rows and safe persistent storage; migrate legacy saved boxes.
+
+Preserve real perspective packaging, radial fronts, opposite category sectors, hook openings, shallow category shapes, matte paper texture, seams and spacing. Retain centralized 250ms hold, 8px threshold, 140ms wheel quiet and 380ms settling. Keep all 3D animations under reduced-motion preferences. Only unavailable WebGL enables the same-card fallback.
+
+Maintain keyboard controls, focus indication, exact product identity, independent description/name search, filters, name/featured/price sorting, unknown-price handling, resets and no-results states. Deliver matching offline HTML and editable source ZIP. A tested commit/push to main is authorized; deployment and GitHub release creation are excluded.

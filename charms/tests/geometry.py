@@ -3,8 +3,8 @@ from playwright.sync_api import sync_playwright
 with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox','--enable-unsafe-swiftshader']);page=b.new_page(viewport={'width':1100,'height':850})
  code=(Path(__file__).resolve().parents[1]/'public/rack.js').read_text().replace('return {focus(id', 'window.__inspect={THREE,camera,scene,rack,get boxes(){return boxes},render};return {focus(id')
- page.route('**/rack.js',lambda route:route.fulfill(body=code,content_type='text/javascript'));page.goto('http://127.0.0.1:3000');page.wait_for_function('window.curioState && curioState().boxes===24')
- geometry=page.evaluate('curioGeometry()');assert all(g['slotMargin']>0 and -.001<g['railClearance']<.002 and g['attachmentError']<.005 for g in geometry);print('PASS hook contact, slot clearance and attachment; capturing front/side/rear swing views',flush=True)
+ page.route('**/rack.js',lambda route:route.fulfill(body=code,content_type='text/javascript'));page.goto('http://127.0.0.1:3000');page.wait_for_function('window.charmsState && charmsState().boxes===24')
+ geometry=page.evaluate('charmsGeometry()');assert all(g['slotMargin']>0 and -.001<g['railClearance']<.002 and g['attachmentError']<.005 for g in geometry);print('PASS hook contact, slot clearance and attachment; capturing front/side/rear swing views',flush=True)
  # Oriented bounding-box SAT on the actual carton meshes, all pairs at
  # both limits of the shared hanging-swing dynamics (not world AABBs).
  collisions=page.evaluate("""()=>{const v=window.__inspect,T=v.THREE,failures=[];

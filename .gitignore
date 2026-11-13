@@ -1,4 +1,4 @@
-curio/node_modules/
-curio/dist/
+charms/node_modules/
+charms/dist/
 **/__pycache__/
 *.log

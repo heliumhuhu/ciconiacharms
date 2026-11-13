@@ -1,3 +1,0 @@
-export function readBag(storage){try{const stored=storage.getItem('curio-quantities');if(stored===null){const old=JSON.parse(storage.getItem('curio-box')||'[]');if(Array.isArray(old))return Object.fromEntries(old.filter(id=>Number.isInteger(id)&&id>0).map(id=>[`product-${id}`,1]));}const raw=JSON.parse(stored||'{}');if(!raw||Array.isArray(raw)||typeof raw!=='object')return {};return Object.fromEntries(Object.entries(raw).filter(([id,n])=>typeof id==='string'&&Number.isSafeInteger(n)&&n>0&&n<=999))}catch{return {}}}
-export function changeQuantity(bag,id,delta){const next={...bag};const n=Math.max(0,Math.min(999,(next[id]||0)+delta));if(n)next[id]=n;else delete next[id];return next}
-export function totalQuantity(bag){return Object.values(bag).reduce((a,b)=>a+b,0)}

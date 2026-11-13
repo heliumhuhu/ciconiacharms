@@ -1,16 +1,16 @@
 from playwright.sync_api import sync_playwright,expect
 import os
-URL=os.environ.get('CURIO_TEST_URL','http://127.0.0.1:3000')
+URL=os.environ.get('CHARMS_TEST_URL','http://127.0.0.1:3000')
 def settled(page):
- page.wait_for_function('curioState().state === "idle"',timeout=5000)
-def state(page):return page.evaluate('curioState()')
+ page.wait_for_function('charmsState().state === "idle"',timeout=5000)
+def state(page):return page.evaluate('charmsState()')
 with sync_playwright() as p:
  browser=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox','--enable-unsafe-swiftshader'])
  for width in [1440,768,390]:
   page=browser.new_page(viewport={'width':width,'height':1000});errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
-  page.goto(URL);page.wait_for_function('window.curioState && curioState().boxes===24')
+  page.goto(URL);page.wait_for_function('window.charmsState && charmsState().boxes===24')
   initial=state(page);camera=initial['camera']
-  geometry=page.evaluate('curioGeometry()');assert len(geometry)==24;assert all(g['slotMargin']>0 and -.001<g['railClearance']<.002 and g['attachmentError']<.005 for g in geometry);assert len({g['color'] for g in geometry if g['category']=='toys'})==1;assert len({g['color'] for g in geometry if g['category']=='jewellery'})==1;assert len({g['color'] for g in geometry})==2
+  geometry=page.evaluate('charmsGeometry()');assert len(geometry)==24;assert all(g['slotMargin']>0 and -.001<g['railClearance']<.002 and g['attachmentError']<.005 for g in geometry);assert len({g['color'] for g in geometry if g['category']=='toys'})==1;assert len({g['color'] for g in geometry if g['category']=='jewellery'})==1;assert len({g['color'] for g in geometry})==2
   page.locator('[data-category=toys]').click();settled(page);assert state(page)['front']=='product-19';assert state(page)['boxes']==24;assert state(page)['camera']==camera
   page.locator('[data-category=jewellery]').click();settled(page);assert state(page)['front']=='product-7'
   page.locator('#scene').focus();page.keyboard.press('ArrowRight');settled(page);assert state(page)['front']=='product-8';assert state(page)['preview']=='product-8'
