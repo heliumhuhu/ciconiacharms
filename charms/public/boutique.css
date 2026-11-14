@@ -5,3 +5,15 @@
 .product-focused .showroom{padding-bottom:180px}.product-focused #scene canvas{position:absolute;top:0;left:0}.product-focused .rack-controls{height:0}.product-focused .preview{transition:padding 300ms ease}.product-focused #description,.product-focused #save-target{animation:reveal 450ms ease both}@keyframes reveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
 #save-target{position:relative}#save-reward{position:absolute;right:16px;top:16px;opacity:0;pointer-events:none;font-weight:600}#saved-total{transform-origin:center}
+
+/* v1.6.4: generous product media and a direct saved-quantity control. */
+.product-focused .showroom{grid-template-columns:minmax(0,1fr) minmax(320px,420px)}
+.product-focused .preview{grid-template-columns:1fr;gap:16px}
+.product-focused .image-slot{width:100%;height:280px;font-size:14px}
+.product-focused .product-heading{display:flex;align-items:baseline;justify-content:space-between}
+.product-focused #description{max-height:none;min-height:70px;margin:0;overflow:visible}
+.saved-label{font-size:11px;color:var(--muted)}
+.save-controls{display:flex;align-items:center;justify-content:flex-start;gap:18px;margin-top:0}
+.save-controls button{border:0;font-size:24px;width:44px;height:44px;padding:0}
+#saved-total{display:inline-block;font-size:22px;min-width:32px;text-align:center;font-variant-numeric:tabular-nums}
+@media(max-width:1000px){.product-focused .image-slot{height:300px}.product-focused .preview{grid-template-columns:1fr}.product-focused #scene{height:540px}}

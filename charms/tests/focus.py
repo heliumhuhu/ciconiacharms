@@ -31,9 +31,9 @@ with sync_playwright() as p:
   page.screenshot(path=str(OUT/f'focus-{width}.png'),full_page=True)
   assert page.evaluate('charmsState().view.surroundingsVisible')==0
   page.evaluate("()=>{window.rewardCalls=0;const original=Element.prototype.animate;Element.prototype.animate=function(...a){if(this.id==='save-reward')rewardCalls++;return original.apply(this,a)}}")
-  for _ in range(5):page.click('#detail-add')
+  for _ in range(5):page.click('#saved-plus')
   assert page.evaluate('charmsState().total')==5
-  assert '5 units' in page.locator('#saved-total').inner_text()
+  assert '5' in page.locator('#saved-total').inner_text()
   assert page.evaluate('rewardCalls')==5
   page.click('#focus-undo');assert page.evaluate('charmsState().total')==4
   page.reload();page.wait_for_function('charmsState().boxes===24');assert page.evaluate('charmsState().total')==4

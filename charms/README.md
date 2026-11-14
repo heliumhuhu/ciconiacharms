@@ -1,3 +1,15 @@
+# CICONIA CHARMS v1.6.4
+
+The latest interaction request supersedes previous Add-button and quantity-editing restrictions. The saving area now has a clean − / saved number / + counter. Plus saves one with existing reward feedback; minus removes one, stops at zero and clears stale Undo. Valid dragging still saves one. Storage compatibility and aggregate My box totals remain unchanged.
+
+Wheel input now continues with velocity-based, exponentially damped momentum after the 140ms quiet interval, then settles to an actual product. Holding still stops motion. The wheel interaction region follows a convex outline of projected carton bounds with 28px padding; empty scene corners allow normal page scrolling. No device-type guessing is needed for mouse or trackpad wheel events.
+
+Focused cartons are larger using the existing perspective camera (minimum focus distance 2.95, previously 3.5). Mobile focus has 540px scene height. The same information card provides a 280px desktop / 300px mobile proportion-preserving product image and unrestricted description height. Product assets and placeholders are unchanged.
+
+The product-list disclosure animates height on both expansion and collapse, retaining native summary keyboard activation. Quick repeated toggles reverse from the current height. No dependencies were upgraded; earlier releases are preserved.
+
+## Previous release record (superseded above)
+
 # CICONIA CHARMS v1.6.3
 
 This release supersedes all historical quantity-to-add selector and blur requirements. The focus card displays the stored product quantity starting at zero. Every button click and valid drag saves exactly one; only My box edits quantities. Undo removes the latest completed unit. The aggregate header and compatible persistent storage are retained.
@@ -20,7 +32,7 @@ Physical jewellery and toy shop catalogue with 24 perspective cartons.
 Browse here · Buy in store. My box — saved favourites.
 Saved for your visit. Items are not reserved.
 
-Open `CICONIA-CHARMS-v1.6.3.html` in a modern browser. Scripts, fonts and required assets are embedded; no installation, server or network is required. Browser policy can restrict local-file opening or storage.
+Open `CICONIA-CHARMS-v1.6.4.html` in a modern browser. Scripts, fonts and required assets are embedded; no installation, server or network is required. Browser policy can restrict local-file opening or storage.
 
 ## Development
 

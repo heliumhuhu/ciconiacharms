@@ -22,7 +22,7 @@ with sync_playwright() as p:
   assert page.evaluate('charmsState().view.anchorError')<1e-6
  def watch(escape_phase=None):
   page.evaluate('''phase=>{window.__samples=[];window.__escapePhase=phase;
-   function sample(){const s=charmsState();if(!s.view)return;__samples.push({...s.view,total:s.total,buttonDisabled:document.querySelector("#detail-add").disabled});
+   function sample(){const s=charmsState();if(!s.view)return;__samples.push({...s.view,total:s.total,buttonDisabled:document.querySelector("#saved-plus").disabled});
     if(s.view.phase===__escapePhase){__escapePhase=null;document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));}
     if(s.view.phase!=='ready')requestAnimationFrame(sample);
    }requestAnimationFrame(sample)}''',escape_phase)
@@ -42,7 +42,7 @@ with sync_playwright() as p:
  assert page.evaluate('charmsState().view.scale')==1
  assert page.evaluate('rewardCalls')==1
  # Repeated completed additions and latest-action Undo preserve the earlier unit.
- page.click('#detail-add');assert page.evaluate('charmsState().total')==2
+ page.click('#saved-plus');assert page.evaluate('charmsState().total')==2
  page.click('#focus-undo');assert page.evaluate('charmsState().total')==1
  page.click('#back');page.wait_for_function('!charmsState().focus',timeout=30000)
  for phase in ['dragging','disappearing','reappearing','returning']:
