@@ -1,3 +1,11 @@
+# CICONIA CHARMS v1.6.5
+
+Restores v1.6.3 rack scroll physics: direct wheel movement, 140ms wheel quiet, then the original 380ms settling to the nearest actual product. The v1.6.4 artificial coast/velocity logic is removed. The padded rack-shaped wheel region, larger focus/media layout and saved −/+ counter remain.
+
+Expanding Explore as a product list now sends a staggered fade/lift ripple diagonally through the actual product grid. Delay follows row plus column so it adapts to two- and four-column layouts. Closing cancels card entrance animations while retaining the animated height collapse. Rapid reversal cancels existing effects before starting a new ripple. No extra products, dependencies or persistent animation elements are created.
+
+## Prior release record (superseded where noted above)
+
 # CICONIA CHARMS v1.6.4
 
 The latest interaction request supersedes previous Add-button and quantity-editing restrictions. The saving area now has a clean − / saved number / + counter. Plus saves one with existing reward feedback; minus removes one, stops at zero and clears stale Undo. Valid dragging still saves one. Storage compatibility and aggregate My box totals remain unchanged.
@@ -32,7 +40,7 @@ Physical jewellery and toy shop catalogue with 24 perspective cartons.
 Browse here · Buy in store. My box — saved favourites.
 Saved for your visit. Items are not reserved.
 
-Open `CICONIA-CHARMS-v1.6.4.html` in a modern browser. Scripts, fonts and required assets are embedded; no installation, server or network is required. Browser policy can restrict local-file opening or storage.
+Open `CICONIA-CHARMS-v1.6.5.html` in a modern browser. Scripts, fonts and required assets are embedded; no installation, server or network is required. Browser policy can restrict local-file opening or storage.
 
 ## Development
 

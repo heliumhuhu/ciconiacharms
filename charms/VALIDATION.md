@@ -1,3 +1,15 @@
+# CICONIA CHARMS v1.6.5 validation
+
+Passed production build, JavaScript syntax, TypeScript and five unit tests. Source comparison confirms the wheel handler (except the retained shaped-hit-region guard), tick/settling and stop logic exactly match verified v1.6.3 commit 7899567. No artificial coasting state remains.
+
+Targeted Chromium checks pass at 390, 768 and 1440px: wheel background rejection, original quiet/settling behavior, no coasting, eventual idle state, animated opening/collapse, staggered animations on all 24 cards and cancellation on close. The same checks retain larger focused bounds, image area, plus/minus quantities, Undo and zero boundary; no horizontal overflow or uncaught page errors.
+
+Offline standalone and fallback pass with networking disabled and no HTTP(S) requests. Direct file:// opening was attempted and blocked by ERR_BLOCKED_BY_ADMINISTRATOR. Physical devices, real mouse/trackpad feel, Safari and Firefox were not tested. Previous drag and geometry validations are reused because those implementations are unchanged.
+
+Keyboard expansion, time-sampled card opacity, collapse cancellation and rapid reversal also pass. The ripple screenshot was inspected.
+
+## Prior release validation (not all rerun)
+
 # CICONIA CHARMS v1.6.4 validation
 
 Production build, JavaScript syntax, TypeScript and five unit tests pass. Targeted Chromium/SwiftShader tests cover 390/768/1440px: padded rack outline rejects background wheel events; frame samples confirm continued momentum after input ends and eventual settling; dropdown opening and closing animate; complete enlarged carton bounds fit; product media height is at least 280px; five plus presses save five, minus decrements, Undo preserves earlier units, zero disables minus, and no horizontal overflow or uncaught errors occur. Screenshots are inspected.

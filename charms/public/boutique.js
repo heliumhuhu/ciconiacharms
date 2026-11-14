@@ -45,5 +45,15 @@ function reward(){
 
 $('#saved-minus').onclick=()=>{if(adding||!focused||!bag[focused.id])return;bag=changeQuantity(bag,focused.id,-1);undo=null;persist();$('#save-confirmation').textContent='Removed one from My box';notify('Removed one from My box')};
 // Keep details open through the closing animation; rapid toggles reverse from current height.
+function rippleProducts(expanding){
+ const items=[...document.querySelectorAll('#product-list .list-product')];
+ items.forEach(item=>item.getAnimations().forEach(animation=>animation.cancel()));
+ if(!expanding)return;
+ const columns=getComputedStyle($('#product-list')).gridTemplateColumns.split(' ').length;
+ items.forEach((item,index)=>item.animate([
+  {opacity:0,transform:'translateY(14px) scale(.98)'},
+  {opacity:1,transform:'translateY(0) scale(1)'}
+ ],{duration:420,delay:80+(Math.floor(index/columns)+index%columns)*65,easing:'cubic-bezier(.2,.7,.2,1)',fill:'backwards'}));
+}
 const disclosure=$('#list-view'),summary=disclosure.querySelector('summary');let disclosureAnimation=null,disclosureExpanded=disclosure.open;
-summary.addEventListener('click',e=>{e.preventDefault();const start=disclosure.getBoundingClientRect().height;disclosureExpanded=disclosureAnimation?!disclosureExpanded:!disclosure.open;disclosureAnimation?.cancel();disclosureAnimation=null;disclosure.style.height='';disclosure.open=true;const end=disclosureExpanded?disclosure.getBoundingClientRect().height:summary.getBoundingClientRect().height+18;disclosure.style.overflow='hidden';disclosureAnimation=disclosure.animate([{height:start+'px'},{height:end+'px'}],{duration:320,easing:'cubic-bezier(.2,.7,.2,1)'});disclosureAnimation.onfinish=()=>{disclosure.open=disclosureExpanded;disclosure.style.overflow='';disclosureAnimation=null}});
+summary.addEventListener('click',e=>{e.preventDefault();const start=disclosure.getBoundingClientRect().height;disclosureExpanded=disclosureAnimation?!disclosureExpanded:!disclosure.open;disclosureAnimation?.cancel();disclosureAnimation=null;disclosure.style.height='';disclosure.open=true;rippleProducts(disclosureExpanded);const end=disclosureExpanded?disclosure.getBoundingClientRect().height:summary.getBoundingClientRect().height+18;disclosure.style.overflow='hidden';disclosureAnimation=disclosure.animate([{height:start+'px'},{height:end+'px'}],{duration:320,easing:'cubic-bezier(.2,.7,.2,1)'});disclosureAnimation.onfinish=()=>{disclosure.open=disclosureExpanded;disclosure.style.overflow='';disclosureAnimation=null}});

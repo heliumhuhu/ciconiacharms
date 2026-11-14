@@ -1,6 +1,6 @@
 from playwright.sync_api import sync_playwright
 from pathlib import Path
-release=Path(__file__).resolve().parents[2]/'CICONIA-CHARMS-v1.6.4.html'
+release=Path(__file__).resolve().parents[2]/'CICONIA-CHARMS-v1.6.5.html'
 with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox','--enable-unsafe-swiftshader'])
  for mode in ['embedded','file','fallback']:
