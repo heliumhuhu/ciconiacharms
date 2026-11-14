@@ -2,22 +2,21 @@ import {products as catalogue,shop,priceOf} from './products.js';
 import {createRack} from './rack.js';
 import {readBag,changeQuantity,totalQuantity} from './bag.js';
 const $=s=>document.querySelector(s),products=catalogue.filter(p=>p.visible).sort((a,b)=>a.displayOrder-b.displayOrder);
-let storage;try{storage=localStorage}catch{}let bag=readBag(storage),undo=null,rack=null,view=null,selected=products[0],focused=null,browseAngle=0,previousFocus=null,adding=false,nextQuantity=1,searchIndex=-1,results=[];
+let storage;try{storage=localStorage}catch{}let bag=readBag(storage),undo=null,rack=null,view=null,selected=products[0],focused=null,browseAngle=0,previousFocus=null,adding=false,searchIndex=-1,results=[];
 const reduced={matches:false};
 function node(tag,text,className){const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(className)el.className=className;return el}
 function picture(parent,p){parent.replaceChildren();const label=node('span',p.imageLabel||'[image]');parent.append(label);if(p.image){const image=new Image();image.alt=p.alt||p.name;image.decoding='async';image.onload=()=>label.remove();image.onerror=()=>{image.remove();label.textContent='Image unavailable'};image.src=p.image;parent.append(image)}}
-function updateSaved(){if(focused)$('#saved-total').textContent=`In My box: ${bag[focused.id]||0} units`;$('#quantity-next').textContent=nextQuantity;$('#quantity-minus').disabled=nextQuantity<=1;$('#quantity-plus').disabled=nextQuantity>=99}
+function updateSaved(){if(focused)$('#saved-total').textContent=`In My box: ${bag[focused.id]||0} units`}
 function persist(){updateSaved();try{storage?.setItem('ciconia-charms-quantities',JSON.stringify(bag))}catch{}$('#bag-count').textContent=totalQuantity(bag);$('#my-box').setAttribute('aria-label',`My box, ${totalQuantity(bag)} saved items`)}
 function notify(message,canUndo=false){$('#toast-message').textContent=message;$('#undo').hidden=!canUndo;$('#focus-undo').hidden=!canUndo;$('#toast').classList.add('visible');clearTimeout(notify.timer);notify.timer=setTimeout(()=>$('#toast').classList.remove('visible'),canUndo?12000:3500)}
-function add(p,quantity=1){const previous=bag[p.id]||0,amount=Math.min(quantity,999-previous);if(!amount){notify('Maximum quantity: 999');return false}bag=changeQuantity(bag,p.id,amount);undo={id:p.id,amount};persist();const message=`Saved ${amount} to My box · ${bag[p.id]} of this product saved`;notify(message,true);if(focused?.id===p.id){$('#save-confirmation').textContent=message;$('#saved-total').getAnimations().forEach(a=>a.cancel());if(!reduced.matches)$('#saved-total').animate([{opacity:.4},{opacity:1}],{duration:200})}return true}
+function add(p,quantity=1){const previous=bag[p.id]||0,amount=Math.min(quantity,999-previous);if(!amount){notify('Maximum quantity: 999');return false}bag=changeQuantity(bag,p.id,amount);undo={id:p.id,amount};persist();const message=`Saved ${amount} to My box · ${bag[p.id]} of this product saved`;notify(message,true);if(focused?.id===p.id){$('#save-confirmation').textContent=message;reward()}return true}
 $('#undo').onclick=()=>{if(!undo)return;bag=changeQuantity(bag,undo.id,-undo.amount);undo=null;persist();renderBag();$('#save-confirmation').textContent='Latest addition undone';notify('Latest addition undone')};
-$('#quantity-minus').onclick=()=>{nextQuantity=Math.max(1,nextQuantity-1);updateSaved()};$('#quantity-plus').onclick=()=>{nextQuantity=Math.min(99,nextQuantity+1);updateSaved()};
 function preview(p,index){if(!p)return;const changed=selected?.id!==p.id;selected=p;$('#product-name').textContent=p.name;$('#price').textContent=priceOf(p);$('#description').textContent=p.description;picture($('#image-label'),p);$('#position').textContent=`${String(index+1).padStart(2,'0')} / ${String(products.length).padStart(2,'0')}`;$('#preview-image').setAttribute('aria-label',`View ${p.name}`);document.querySelectorAll('[data-category]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.category===p.category)));if(changed&&!reduced.matches){$('#image-label').getAnimations().forEach(a=>a.cancel());$('#image-label').animate([{opacity:.45},{opacity:1}],{duration:140})}}
-function setBusy(busy){adding=busy;$('#detail-add').disabled=busy;$('#quantity-minus').disabled=busy||nextQuantity<=1;$('#quantity-plus').disabled=busy||nextQuantity>=99}
-function openProduct(p){if(!p||focused)return;previousFocus=document.activeElement;focused=p;nextQuantity=1;preview(p,products.indexOf(p));updateSaved();$('#save-confirmation').textContent='';document.body.classList.add('product-focused');$('#description').hidden=false;$('#back').hidden=false;$('#save-target').hidden=false;for(const el of document.querySelectorAll('.toolbar,.rack-controls,#list-view'))el.inert=true;setBusy(true);view=rack?.focus(p.id,()=>saveFocused(1,true),setBusy);if(!view){setBusy(false);picture($('#scene'),p)}$('#back').focus({preventScroll:true});$('.rack-area').scrollIntoView({block:'start'});}
+function setBusy(busy){adding=busy;$('#detail-add').disabled=busy}
+function openProduct(p){if(!p||focused)return;previousFocus=document.activeElement;focused=p;preview(p,products.indexOf(p));updateSaved();$('#save-confirmation').textContent='';document.body.classList.add('product-focused');$('#description').hidden=false;$('#back').hidden=false;$('#save-target').hidden=false;for(const el of document.querySelectorAll('.toolbar,.rack-controls,#list-view'))el.inert=true;setBusy(true);view=rack?.focus(p.id,()=>saveFocused(1,true),setBusy);if(!view){setBusy(false);picture($('#scene'),p)}$('#back').focus({preventScroll:true});$('.rack-area').scrollIntoView({block:'start'});}
 function closeProduct(){if(!focused)return;setBusy(true);const done=()=>{document.body.classList.remove('product-focused');$('#description').hidden=true;$('#back').hidden=true;$('#save-target').hidden=true;for(const el of document.querySelectorAll('.toolbar,.rack-controls,#list-view'))el.inert=false;focused=null;view=null;setBusy(false);previousFocus?.focus({preventScroll:true})};if(view)view.leave(done);else done();}
 function saveFocused(quantity=1,dragged=false){if((adding&&!dragged)||!focused)return;return add(focused,quantity)}
-$('#preview-image').onclick=()=>openProduct(selected);$('#detail-add').onclick=()=>saveFocused(nextQuantity);$('#back').onclick=closeProduct;
+$('#preview-image').onclick=()=>openProduct(selected);$('#detail-add').onclick=()=>saveFocused(1);$('#back').onclick=closeProduct;
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&focused&&!$('#box-dialog').open){e.preventDefault();closeProduct()}});
 for(const dialog of document.querySelectorAll('dialog'))dialog.querySelector('.close').onclick=()=>dialog.close();
 $('#focus-undo').onclick=()=>$('#undo').click();
@@ -36,3 +35,10 @@ $('#previous').onclick=()=>rack?.next(-1);$('#next').onclick=()=>rack?.next(1);d
 window.charmsState=()=>({...rack?.diagnostics(),preview:selected?.id,quantities:{...bag},total:totalQuantity(bag),focus:focused?.id,view:view?.diagnostics()});
 
 window.charmsGeometry=()=>rack?.inspectGeometry();
+
+function reward(){
+ for(const id of ['saved-total','save-target','save-reward'])document.getElementById(id).getAnimations().forEach(a=>a.cancel());
+ $('#saved-total').animate([{transform:'scale(1)'},{transform:'scale(1.12)',offset:.35},{transform:'scale(1)'}],{duration:360});
+ $('#save-target').animate([{backgroundColor:'#e1e1e1'},{backgroundColor:'#fafafa'}],{duration:450});
+ $('#save-reward').animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'translateY(0)',offset:.25},{opacity:0,transform:'translateY(-16px)'}],{duration:650});
+}

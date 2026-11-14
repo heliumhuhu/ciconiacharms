@@ -15,14 +15,14 @@ with sync_playwright() as p:
  assert page.locator('#list-count').inner_text()=='1 of 24 products'
  assert page.locator('#price-note').is_visible();page.click('.list-product')
  assert page.evaluate('charmsState().focus')=='product-17';assert page.locator('.preview #save-target').count()==1
- assert page.locator('#quantity-next').inner_text()=='1';page.click('#detail-add');assert page.evaluate('charmsState().total')==1001
+ assert '0 units' in page.locator('#saved-total').inner_text();page.click('#detail-add');assert page.evaluate('charmsState().total')==1001
  page.click('#focus-undo');assert page.evaluate('charmsState().total')==1000
  page.keyboard.press('Escape');page.wait_for_function('!charmsState().focus')
  page.click('#list-reset');assert page.locator('.list-product').count()==24
  page.select_option('#list-category','jewellery');page.select_option('#list-sort','name');assert page.locator('.list-product').count()==12
  assert '[product1]' in page.locator('.list-product').first.inner_text()
  page.fill('#list-search','absent');assert page.locator('#list-empty').is_visible();page.click('#list-reset')
- page.locator('.list-product').first.click();page.click('#quantity-plus');page.click('#detail-add')
+ page.locator('.list-product').first.click();page.click('#detail-add')
  assert page.evaluate('charmsState().quantities["product-1"]')==999
  page.click('#focus-undo');assert page.evaluate('charmsState().quantities["product-1"]')==998
  page.keyboard.press('Escape');page.click('#my-box');assert page.get_by_text('Unavailable',exact=True).is_visible()

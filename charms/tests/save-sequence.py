@@ -11,7 +11,7 @@ with sync_playwright() as p:
  source=(Path(__file__).resolve().parents[1]/'public/product-view.js').read_text()
  source=source.replace('carton.visible=false;carton.scale.copy(homeScale);parent.attach(carton);', 'window.__relocations.push({scale:carton.scale.x,phase});carton.visible=false;carton.scale.copy(homeScale);parent.attach(carton);')
  page.route('**/product-view.js',lambda r:r.fulfill(body=source,content_type='text/javascript'))
- page.goto(URL);page.wait_for_function('charmsState().boxes===24');page.evaluate('window.__relocations=[]')
+ page.goto(URL);page.wait_for_function('charmsState().boxes===24');page.evaluate('''()=>{window.__relocations=[];window.rewardCalls=0;const original=Element.prototype.animate;Element.prototype.animate=function(...a){if(this.id==='save-reward')rewardCalls++;return original.apply(this,a)}}''')
  initial=page.evaluate('charmsState()')
  def open_focus():
   page.locator('#preview-image').click();page.wait_for_function('charmsState().view?.phase==="ready"',timeout=30000)
@@ -40,16 +40,18 @@ with sync_playwright() as p:
  assert page.evaluate('__relocations')==[{'scale':0,'phase':'disappearing'}]
  assert all(max(abs(a-b) for a,b in zip(s['position'],next(v for v in samples if v['phase']=='disappearing')['position']))<1e-6 for s in samples if s['phase']=='disappearing')
  assert page.evaluate('charmsState().view.scale')==1
+ assert page.evaluate('rewardCalls')==1
  # Repeated completed additions and latest-action Undo preserve the earlier unit.
- page.click('#quantity-plus');page.click('#detail-add');assert page.evaluate('charmsState().total')==3
+ page.click('#detail-add');assert page.evaluate('charmsState().total')==2
  page.click('#focus-undo');assert page.evaluate('charmsState().total')==1
  page.click('#back');page.wait_for_function('!charmsState().focus',timeout=30000)
  for phase in ['dragging','disappearing','reappearing','returning']:
-  open_focus();drag(phase!='returning');before=page.evaluate('charmsState().total')
+  open_focus();drag(phase!='returning');before=page.evaluate('charmsState().total');rewards=page.evaluate('rewardCalls')
   if phase=='dragging':page.keyboard.press('Escape');page.mouse.up();expected=before
   else:
    watch(phase);page.mouse.up();expected=before+(phase!='returning')
   page.wait_for_function('!charmsState().focus',timeout=30000)
+  assert page.evaluate('rewardCalls')==rewards+(phase in ['disappearing','reappearing'])
   state=page.evaluate('charmsState()');assert state['total']==expected,(phase,state)
   assert state['angle']==initial['angle'] and state['camera']==initial['camera']
   open_focus();v=page.evaluate('charmsState().view');assert v['attached'] and v['scale']==1 and v['visible']

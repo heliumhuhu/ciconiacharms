@@ -29,8 +29,18 @@ with sync_playwright() as p:
    points=page.evaluate('charmsState().view.bounds');assert all(r['x']<=p['x']<=r['x']+r['width'] and r['y']+5<p['y']<r['y']+r['height']-5 for p in points),(width,swing,points)
   page.evaluate('()=>{__framing.boxes[0].userData.pivot.rotation.z=0;__framing.render()}')
   page.screenshot(path=str(OUT/f'focus-{width}.png'),full_page=True)
-  page.click('#quantity-plus');page.click('#detail-add');assert page.evaluate('charmsState().total')==2
-  page.click('#focus-undo');assert page.evaluate('charmsState().total')==0
+  assert page.evaluate('charmsState().view.surroundingsVisible')==0
+  page.evaluate("()=>{window.rewardCalls=0;const original=Element.prototype.animate;Element.prototype.animate=function(...a){if(this.id==='save-reward')rewardCalls++;return original.apply(this,a)}}")
+  for _ in range(5):page.click('#detail-add')
+  assert page.evaluate('charmsState().total')==5
+  assert '5 units' in page.locator('#saved-total').inner_text()
+  assert page.evaluate('rewardCalls')==5
+  page.click('#focus-undo');assert page.evaluate('charmsState().total')==4
+  page.reload();page.wait_for_function('charmsState().boxes===24');assert page.evaluate('charmsState().total')==4
+  page.click('#preview-image');page.wait_for_function('charmsState().view?.phase==="ready"')
+  page.evaluate("localStorage.clear()")
+  page.reload();page.wait_for_function('charmsState().boxes===24');page.click('#preview-image');page.wait_for_function('charmsState().view?.phase==="ready"')
+  identity=page.evaluate('charmsState().view.cartonId')
   # Reposition after controls scroll the viewport.
   page.locator('#scene').scroll_into_view_if_needed();v=page.evaluate('charmsState().view.center');target=page.locator('#save-target').bounding_box();end={'x':target['x']+target['width']/2,'y':target['y']+30}
   page.mouse.move(v['x'],v['y']);page.mouse.down();page.mouse.move(end['x'],end['y'],steps=12)

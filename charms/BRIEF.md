@@ -1,10 +1,20 @@
-# Ciconia Charms 1.6.2 update
+# CICONIA CHARMS v1.6.3
+
+This release supersedes all historical quantity-to-add selector and blur requirements. The focus card displays the stored product quantity starting at zero. Every button click and valid drag saves exactly one; only My box edits quantities. Undo removes the latest completed unit. The aggregate header and compatible persistent storage are retained.
+
+Successful saves synchronously update storage and trigger a count bounce, monochrome target pulse and one reusable floating check/+1. Animation callbacks never change quantities. New feedback cancels the prior effects without adding DOM elements. Invalid/cancelled drops do not trigger rewards. Existing zero-scale disappearance/relocation/reappearance and recovery blocking remain unchanged.
+
+The existing perspective camera approaches the actual carton. Other cartons and infrastructure fade using isolated material copies, becoming invisible at full focus. The selected carton and hook remain intact. Exit reverses the fade and restores original materials, visibility and browsing pose. No blur, cloned geometry or second product scene is introduced. Existing responsive full-carton framing and normal browsing camera are retained.
+
+## Archived earlier release notes (superseded by the specification above)
+
+# CICONIA CHARMS 1.6.2 update
 
 The latest request supersedes the blur and camera requirements below: all blur/compositing is removed, browsing camera distance is 7.2 (previously 8.6), focus distance is 3.5 (previously 3.9), with responsive clearance limits retained. The product-list disclosure is above the rack, immediately discoverable. Saving and recovery mechanics are retained.
 
 ## Historical 1.6.1 record (superseded where noted above)
 
-# Ciconia Charms — 1.6.1
+# CICONIA CHARMS — 1.6.1
 
 The owner's cumulative brief and naming correction supersede all earlier briefs. The current editable source directory is `charms/`. Preserve all previous release files and the supplied main logo unchanged. Retain the 24 stable products with linked numbered placeholders and null unknown prices. No checkout, payment, delivery, orders, reservations, authentication, dashboard or backend.
 

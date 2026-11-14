@@ -1,6 +1,6 @@
 from playwright.sync_api import sync_playwright
 from pathlib import Path
-release=Path(__file__).resolve().parents[2]/'CICONIA-CHARMS-v1.6.2.html'
+release=Path(__file__).resolve().parents[2]/'CICONIA-CHARMS-v1.6.3.html'
 with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox','--enable-unsafe-swiftshader'])
  for mode in ['embedded','file','fallback']:
@@ -15,8 +15,14 @@ with sync_playwright() as p:
   if mode!='fallback':page.wait_for_function('charmsState().boxes===24')
   page.click('#preview-image')
   if mode!='fallback':page.wait_for_function('charmsState().view?.phase==="ready"',timeout=15000)
-  page.click('#quantity-plus');page.click('#detail-add');assert page.evaluate('charmsState().total')==2
-  page.click('#focus-undo');assert page.evaluate('charmsState().total')==0
+  page.evaluate('''()=>{window.rewards=0;const original=Element.prototype.animate;Element.prototype.animate=function(...args){if(this.id==='save-reward')rewards++;return original.apply(this,args)};for(let i=0;i<20;i++)document.querySelector('#detail-add').click()}''')
+  assert page.evaluate('charmsState().total')==20
+  assert page.evaluate('rewards')==20
+  assert '20 units' in page.locator('#saved-total').inner_text()
+  assert page.locator('#save-reward').count()==1
+  assert page.evaluate("document.querySelector('#save-reward').getAnimations().length")<=1
+  page.wait_for_timeout(800);assert page.evaluate('charmsState().total')==20
+  page.click('#focus-undo');assert page.evaluate('charmsState().total')==19
   page.keyboard.press('Escape');page.wait_for_function('!charmsState().focus',timeout=15000)
   assert not errors,errors;assert not network,network
   print('PASS offline',mode,flush=True);context.close()
